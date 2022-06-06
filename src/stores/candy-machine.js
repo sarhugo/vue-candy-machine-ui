@@ -24,6 +24,7 @@ export const useCandyMachineStore = defineStore({
     endMinted: null,
     whitelistMintSettings: null,
     isWhiteListed: 0,
+    authority: null,
     retainAuthority: false,
     hiddenSettings: null,
     price: 0,
@@ -108,6 +109,7 @@ export const useCandyMachineStore = defineStore({
               ? state.data.endSettings.number.toNumber()
               : null,
           whitelistMintSettings: state.data.whitelistMintSettings,
+          authority: state.authority,
           retainAuthority: state.data.retainAuthority,
           hiddenSettings: state.data.hiddenSettings,
           price: state.data.price,
