@@ -33,7 +33,11 @@ export const useCandyMachineStore = defineStore({
   }),
   getters: {
     isActive: (state) =>
-      state.loaded && !state.isFuture && !state.hasEnded && !state.isSoldOut,
+      state.loaded &&
+      state.goLiveDate &&
+      !state.isFuture &&
+      !state.hasEnded &&
+      !state.isSoldOut,
     itemsRemaining: (state) =>
       Math.min(
         state.endMinted || Number.POSITIVE_INFINITY,
@@ -42,7 +46,9 @@ export const useCandyMachineStore = defineStore({
     isSoldOut: (state) => state.itemsRemaining === 0,
     isFuture: (state) =>
       state.loaded && state.goLiveDate && state.goLiveDate > state.currentTime,
-    isPresale: (state) => state.isFuture && state.whitelistMintSettings.presale,
+    isPresale: (state) =>
+      (!state.goLiveDate || state.isFuture) &&
+      state.whitelistMintSettings.presale,
     isWhitelistOnly: (state) =>
       !state.goLiveDate && state.whitelistMintSettings,
     hasEnded: (state) =>
