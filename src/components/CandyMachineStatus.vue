@@ -6,7 +6,7 @@ const cm = useCandyMachineStore();
 <template>
   <template v-if="cm.isActive">
     <template v-if="cm.endDate">
-      <time-countdown :value="cm.endDate"></time-countdown>
+      <time-countdown :value="cm.adjustedEndDate"></time-countdown>
       <div class="my-1 text-center uppercase font-bold text-sm">
         To end of mint
       </div>
@@ -25,7 +25,7 @@ const cm = useCandyMachineStore();
   </template>
 
   <template v-else-if="cm.isFuture">
-    <time-countdown :value="cm.goLiveDate"></time-countdown>
+    <time-countdown :value="cm.adjustedLiveDate"></time-countdown>
     <div
       v-if="cm.isPresale"
       class="my-1 text-center uppercase font-bold text-sm"

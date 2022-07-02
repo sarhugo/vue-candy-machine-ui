@@ -28,6 +28,7 @@ export const useCandyMachineStore = defineStore({
     retainAuthority: false,
     hiddenSettings: null,
     price: 0,
+    timeShift: 0,
     balance: new BN(0),
     loaded: false,
   }),
@@ -38,6 +39,10 @@ export const useCandyMachineStore = defineStore({
       !state.isFuture &&
       !state.hasEnded &&
       !state.isSoldOut,
+    adjustedLiveDate: (state) =>
+      state.goLiveDate && state.goLiveDate + state.timeShift,
+    adjustedEndDate: (state) =>
+      state.endDate && state.endDate + state.timeShift,
     itemsRemaining: (state) =>
       Math.min(
         state.endMinted || Number.POSITIVE_INFINITY,
@@ -45,15 +50,17 @@ export const useCandyMachineStore = defineStore({
       ) - state.itemsRedeemed,
     isSoldOut: (state) => state.itemsRemaining === 0,
     isFuture: (state) =>
-      state.loaded && state.goLiveDate && state.goLiveDate > state.currentTime,
+      state.loaded &&
+      state.goLiveDate &&
+      state.adjustedLiveDate > state.currentTime,
     isPresale: (state) =>
       (!state.goLiveDate || state.isFuture) &&
-      state.whitelistMintSettings.presale,
+      state.whitelistMintSettings?.presale,
     isWhitelistOnly: (state) =>
       !state.goLiveDate && state.whitelistMintSettings,
     hasEnded: (state) =>
       state.loaded &&
-      ((state.endDate && state.endDate <= state.currentTime) ||
+      ((state.endDate && state.adjustedEndDate <= state.currentTime) ||
         (state.endMinted && state.itemsRedeemed >= state.endMinted)),
     discount: (state) =>
       state.isWhiteListed && state.whitelistMintSettings.discountPrice,
@@ -95,6 +102,8 @@ export const useCandyMachineStore = defineStore({
           const idl = await Program.fetchIdl(CANDY_MACHINE_PROGRAM, provider);
           this.program = new Program(idl, CANDY_MACHINE_PROGRAM, provider);
         }
+        const currentSlot = await connection.getSlot();
+        const blockTime = await connection.getBlockTime(currentSlot);
         const state = await this.program.account.candyMachine.fetch(
           CANDY_MACHINE_ID
         );
@@ -119,6 +128,7 @@ export const useCandyMachineStore = defineStore({
           retainAuthority: state.data.retainAuthority,
           hiddenSettings: state.data.hiddenSettings,
           price: state.data.price,
+          timeShift: Date.now() / 1000 - blockTime,
           loaded: true,
         });
       } catch (error) {
