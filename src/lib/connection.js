@@ -14,7 +14,7 @@ export const sendTransactions = async (
 
   const unsignedTxns = [];
 
-  const block = await connection.getRecentBlockhash();
+  const block = await connection.getLatestBlockhash(commitment);
 
   instructionSet.forEach((instructions, i) => {
     if (!instructions.length) {
