@@ -46,6 +46,14 @@ const getCandyMachineCreator = async (candyMachine) => {
   );
 };
 
+const getFreezePDA = async (candyMachineAddress) => {
+  const result = await web3.PublicKey.findProgramAddress(
+    [Buffer.from("freeze"), candyMachineAddress.toBuffer()],
+    CANDY_MACHINE_PROGRAM
+  );
+  return result[0];
+};
+
 const getCollectionPDA = async (candyMachineAddress) => {
   const result = await web3.PublicKey.findProgramAddress(
     [Buffer.from("collection"), candyMachineAddress.toBuffer()],
@@ -224,6 +232,35 @@ export const getMintTransaction = async (candyMachine, wallet) => {
   const [candyMachineCreator, creatorBump] = await getCandyMachineCreator(
     candyMachineAddress
   );
+
+  const freezePDA = await getFreezePDA(candyMachineAddress);
+  const freezePDAState = await candyMachine.program.account.freezePDA.fetch(
+    freezePDA
+  );
+
+  if (freezePDAState != null) {
+    remainingAccounts.push({
+      pubkey: freezePDA,
+      isWritable: true,
+      isSigner: false,
+    });
+    remainingAccounts.push({
+      pubkey: userTokenAccountAddress,
+      isWritable: false,
+      isSigner: false,
+    });
+    if (candyMachine.tokenMint) {
+      const freezeAta = await getAssociatedTokenAddress(
+        candyMachine.state.tokenMint,
+        freezePDA
+      );
+      remainingAccounts.push({
+        pubkey: freezeAta,
+        isWritable: true,
+        isSigner: false,
+      });
+    }
+  }
 
   instructions.push(
     await candyMachine.program.instruction.mintNft(creatorBump, {
