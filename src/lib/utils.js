@@ -54,6 +54,15 @@ const getFreezePDA = async (candyMachineAddress) => {
   return result[0];
 };
 
+const getFreezePDAState = async (candyMachine, freezePDA) => {
+  try {
+    const state = candyMachine.program.account.freeze.fetch(freezePDA);
+    return state;
+  } catch (err) {
+    return null;
+  }
+};
+
 const getCollectionPDA = async (candyMachineAddress) => {
   const result = await web3.PublicKey.findProgramAddress(
     [Buffer.from("collection"), candyMachineAddress.toBuffer()],
@@ -234,9 +243,7 @@ export const getMintTransaction = async (candyMachine, wallet) => {
   );
 
   const freezePDA = await getFreezePDA(candyMachineAddress);
-  const freezePDAState = await candyMachine.program.account.freezePDA.fetch(
-    freezePDA
-  );
+  const freezePDAState = await getFreezePDAState(candyMachine, freezePDA);
 
   if (freezePDAState != null) {
     remainingAccounts.push({
