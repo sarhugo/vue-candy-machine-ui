@@ -18,7 +18,7 @@
     "@solana/wallet-adapter-wallets": "^0.15.5",
     "@solana/web3.js": "^1.43.2",
     "pinia": "^2.0.14",
-    "solana-wallets-vue": "^0.3.2",
+    "solana-wallets-vue": "^0.5.2",
     "vue": "^3.2.25"
   },
   "devDependencies": {
