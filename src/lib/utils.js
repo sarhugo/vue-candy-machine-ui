@@ -56,7 +56,7 @@ const getFreezePDA = async (candyMachineAddress) => {
 
 const getFreezePDAState = async (candyMachine, freezePDA) => {
   try {
-    const state = candyMachine.program.account.freeze.fetch(freezePDA);
+    const state = candyMachine.program.account.freezePda.fetch(freezePDA);
     return state;
   } catch (err) {
     return null;
